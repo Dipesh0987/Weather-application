@@ -1,0 +1,10 @@
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore environment or server-side files
+.env
+connection.php
+
+# Node modules (if you use Node for any reason later)
+node_modules/

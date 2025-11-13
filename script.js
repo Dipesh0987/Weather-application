@@ -1,5 +1,5 @@
-
-const API_URL = "a1387411d9751f10a2be3e09afc3fcb4";
+// Configuration
+const API_KEY = "a1387411d9751f10a2be3e09afc3fcb4"; // Your OpenWeather API key
 const BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
 
 // DOM Elements
@@ -20,9 +20,11 @@ const elements = {
     day: document.querySelector(".day")
 };
 
+/**
+ * Fetch and display weather data for a city
+ */
 async function checkWeather(city) {
     try {
-        // Validate input
         city = city.trim();
         
         if (!city) {
@@ -30,76 +32,36 @@ async function checkWeather(city) {
             return;
         }
 
-        let data;
-        const cacheKey = city.toLowerCase();
+        const response = await fetch(
+            `${BASE_URL}?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric`
+        );
         
-        if (navigator.onLine) {
-            // Online: Fetch from API
-            const response = await fetch(`${API_URL}${encodeURIComponent(city)}`);
-            
-            // Handle different response statuses
+        if (!response.ok) {
             if (response.status === 404) {
                 alert("City not found. Please enter a valid city name.");
-                searchBox.value = "";
-                return;
             } else if (response.status === 401) {
-                alert("API authentication failed. Please check your API key.");
-                return;
-            } else if (response.status === 500) {
-                alert("Server error. Please try again later.");
-                return;
-            } else if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                alert("API authentication failed.");
+            } else {
+                alert("Error fetching weather data. Please try again.");
             }
-            
-            data = await response.json();
-            console.log("Fetched Data:", data);
-            
-            // Cache the data in localStorage
-            try {
-                localStorage.setItem(cacheKey, JSON.stringify({
-                    data: data,
-                    timestamp: Date.now()
-                }));
-            } catch (e) {
-                console.warn("localStorage unavailable:", e);
-            }
-        } else {
-            // Offline: Try to load from cache
-            const cached = localStorage.getItem(cacheKey);
-            if (!cached) {
-                alert("No internet connection and no cached data available.");
-                return;
-            }
-            
-            const cachedData = JSON.parse(cached);
-            data = cachedData.data;
-            console.log("Using cached data");
+            searchBox.value = "";
+            return;
         }
         
-        // Extract weather data with defaults
-        const {
-            City_Name = "Unknown City",
-            Temperature = "N/A",
-            Humidity = "N/A",
-            Wind_speed = "N/A",
-            Wind_Direction = "N/A",
-            Pressure = "N/A",
-            Icon_Code = ""
-        } = data[0] || {};
-
-        // Update DOM elements
-        elements.name.innerText = City_Name;
-        elements.temp.innerText = `${Temperature}°C`;
-        elements.humidity.innerText = `${Humidity}%`;
-        elements.wind.speed.innerText = `${Wind_speed} km/h`;
-        elements.wind.deg.innerText = `${Wind_Direction}°`;
-        elements.pressure.innerText = `${Pressure} hPa`;
+        const data = await response.json();
+        
+        // Update DOM with weather data
+        elements.name.innerText = data.name;
+        elements.temp.innerText = `${Math.round(data.main.temp)}°C`;
+        elements.humidity.innerText = `${data.main.humidity}%`;
+        elements.wind.speed.innerText = `${data.wind.speed} km/h`;
+        elements.wind.deg.innerText = `${data.wind.deg || 0}°`;
+        elements.pressure.innerText = `${data.main.pressure} hPa`;
 
         // Update weather icon
-        if (Icon_Code) {
-            weatherIcon.src = `https://openweathermap.org/img/wn/${Icon_Code}@2x.png`;
-            weatherIcon.alt = `Weather icon for ${City_Name}`;
+        if (data.weather && data.weather[0]) {
+            weatherIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+            weatherIcon.alt = `Weather icon for ${data.name}`;
         }
 
         // Update date and day
@@ -111,33 +73,27 @@ async function checkWeather(city) {
     }
 }
 
-
+/**
+ * Update the current date and day display
+ */
 function updateDateTime() {
     const now = new Date();
     
-    // Format the date
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     const localDate = now.toLocaleDateString('en-US', options);
     
-    // Get the current day
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const currentDay = days[now.getDay()];
     
-    // Display in the HTML
     elements.date.innerHTML = localDate;
     elements.day.innerHTML = currentDay;
 }
 
-/**
- * Handle search button click
- */
+// Event listeners
 searchBtn.addEventListener("click", () => {
     checkWeather(searchBox.value);
 });
 
-/**
- * Handle Enter key press in search box
- */
 searchBox.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
         checkWeather(searchBox.value);
@@ -146,6 +102,3 @@ searchBox.addEventListener("keypress", (e) => {
 
 // Load default city on page load
 checkWeather("Guntersville");
-
-
-

@@ -5,15 +5,13 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Content-Type: application/json");
 
-// Database configuration - MOVE TO CONFIG FILE FOR PRODUCTION
+// Database configuration 
 $serverName = "localhost";
 $userName = "root";
 $password = "";
 $dbName = "if0_38238968_dipesh";
 
-// API Key - MOVE TO ENVIRONMENT VARIABLE FOR PRODUCTION
-// Get your key from: https://openweathermap.org/api
-$apikey = "a1387411d9751f10a2be3e09afc3fcb4"; // TODO: Move to .env file
+$apikey = "a1387411d9751f10a2be3e09afc3fcb4"; 
 
 // Create connection
 $conn = mysqli_connect($serverName, $userName, $password);
@@ -54,19 +52,17 @@ if (!mysqli_query($conn, $createTable)) {
     exit();
 }
 
-// Get city name from query parameter
+// Get city name
 $cityname = isset($_GET['t']) ? trim($_GET['t']) : "Guntersville";
 
-// Validate city name (basic validation)
+// Validate city name
 if (empty($cityname) || strlen($cityname) > 100) {
     http_response_code(400);
     echo json_encode(["error" => "Invalid city name"]);
     exit();
 }
 
-/**
- * Fetch weather data from OpenWeather API and update database
- */
+
 function checkWeather($conn, $city, $apikey) {
     $city = urlencode($city);
     $url = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=$apikey&units=metric";
@@ -92,7 +88,6 @@ function checkWeather($conn, $city, $apikey) {
     $Pressure = $data['main']['pressure'];
     $Icon_Code = $data['weather'][0]['icon'];
 
-    // Use prepared statements to prevent SQL injection
     $stmt = mysqli_prepare($conn, "SELECT * FROM WEATHER WHERE City_Name = ?");
     mysqli_stmt_bind_param($stmt, "s", $City_Name);
     mysqli_stmt_execute($stmt);
@@ -142,7 +137,6 @@ function checkWeather($conn, $city, $apikey) {
 // Main logic
 $finaldata = [];
 
-// Use prepared statement to select data
 $stmt_select = mysqli_prepare($conn, "SELECT * FROM WEATHER WHERE City_Name = ?");
 mysqli_stmt_bind_param($stmt_select, "s", $cityname);
 mysqli_stmt_execute($stmt_select);
@@ -201,4 +195,5 @@ mysqli_close($conn);
 
 // Return JSON response
 echo json_encode($finaldata);
+
 ?>

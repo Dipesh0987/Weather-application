@@ -1,5 +1,5 @@
 // Configuration
-const API_KEY = "a1387411d9751f10a2be3e09afc3fcb4"; // Your OpenWeather API key
+const API_KEY = "a1387411d9751f10a2be3e09afc3fcb4";
 const BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
 
 // DOM Elements
@@ -39,8 +39,6 @@ async function checkWeather(city) {
         if (!response.ok) {
             if (response.status === 404) {
                 alert("City not found. Please enter a valid city name.");
-            } else if (response.status === 401) {
-                alert("API authentication failed.");
             } else {
                 alert("Error fetching weather data. Please try again.");
             }
@@ -68,8 +66,8 @@ async function checkWeather(city) {
         updateDateTime();
 
     } catch (error) {
-        console.error("Error fetching weather data:", error);
-        alert("An error occurred while fetching weather data. Please try again.");
+        console.error("Error:", error);
+        alert("Network error. Please check your connection.");
     }
 }
 

@@ -1,6 +1,6 @@
 
-const API_URL = "http://localhost/weather/connection.php?t=";
-
+const API_URL = "a1387411d9751f10a2be3e09afc3fcb4";
+const BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
 
 // DOM Elements
 const searchBox = document.querySelector(".search input");
@@ -146,5 +146,6 @@ searchBox.addEventListener("keypress", (e) => {
 
 // Load default city on page load
 checkWeather("Guntersville");
+
 
 

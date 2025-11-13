@@ -1,6 +1,6 @@
-// Configuration - Update this for production
+
 const API_URL = "http://localhost/weather/connection.php?t=";
-// For production, use: const API_URL = "https://yourdomain.com/api/connection.php?t=";
+
 
 // DOM Elements
 const searchBox = document.querySelector(".search input");
@@ -20,10 +20,6 @@ const elements = {
     day: document.querySelector(".day")
 };
 
-/**
- * Fetch and display weather data for a city
- * @param {string} city - City name to search
- */
 async function checkWeather(city) {
     try {
         // Validate input
@@ -115,9 +111,7 @@ async function checkWeather(city) {
     }
 }
 
-/**
- * Update the current date and day display
- */
+
 function updateDateTime() {
     const now = new Date();
     
@@ -152,4 +146,5 @@ searchBox.addEventListener("keypress", (e) => {
 
 // Load default city on page load
 checkWeather("Guntersville");
+
 
